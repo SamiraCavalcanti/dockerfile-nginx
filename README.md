@@ -2,6 +2,10 @@
 
 Aplicação web simples para consultar endereços a partir de um CEP. A página usa jQuery e a API ViaCEP, sendo servida por um servidor NGINX em um container Docker.
 
+## Demonstração
+
+![Aplicação NGINX ViaCEP](/viacep.png)
+
 ## Pré-requisitos
 
 - Docker instalado e em execução.
@@ -54,20 +58,6 @@ docker tag nginx-viacep SEU_USUARIO/nginx-viacep:latest
 docker push SEU_USUARIO/nginx-viacep:latest
 ```
 
-## Versionar no GitHub
-
-Crie no GitHub um repositório público chamado `dockerfile-nginx`. Depois, dentro deste diretório, execute:
-
-```bash
-git init
-git add Dockerfile index.html README.md
-git commit -m "Adiciona aplicação NGINX com ViaCEP"
-git branch -M main
-git remote add origin https://github.com/SEU_USUARIO_GITHUB/dockerfile-nginx.git
-git push -u origin main
-```
-
-Substitua `SEU_USUARIO_GITHUB` pelo seu usuário do GitHub. O repositório deve conter o `Dockerfile`, o `index.html` e este `README.md`.
 
 ## Parar e remover o container
 
