@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <title>ViaCEP Webservice</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+        :root {
+            --ink: #19324a;
+            --muted: #6f8190;
+            --accent: #e76f51;
+            --accent-dark: #c9573d;
+            --paper: #ffffff;
+            --line: #d9e3e8;
+            --background: #eef5f6;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            color: var(--ink);
+            background: linear-gradient(135deg, #dceff0, var(--background) 52%, #f8eee5);
+            font-family: "Trebuchet MS", sans-serif;
+        }
+
+        main {
+            width: min(100%, 620px);
+            padding: 36px;
+            background: var(--paper);
+            border: 1px solid rgba(25, 50, 74, 0.08);
+            border-radius: 18px;
+            box-shadow: 0 20px 50px rgba(25, 50, 74, 0.12);
+        }
+
+        .eyebrow {
+            margin: 0 0 8px;
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: bold;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 6vw, 3rem);
+            line-height: 1;
+        }
+
+        .intro {
+            margin: 14px 0 28px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        form {
+            display: grid;
+            gap: 16px;
+        }
+
+        .cep-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        label {
+            display: grid;
+            gap: 7px;
+            color: var(--muted);
+            font-size: 0.82rem;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 13px;
+            color: var(--ink);
+            background: #fbfdfd;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            font: inherit;
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: 3px solid rgba(231, 111, 81, 0.2);
+            border-color: var(--accent);
+        }
+
+        #cep {
+            max-width: 180px;
+        }
+
+        button {
+            align-self: end;
+            padding: 12px 18px;
+            color: #fff;
+            background: var(--accent);
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: bold;
+            transition: background 160ms ease, transform 160ms ease;
+        }
+
+        button:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 520px) {
+            main {
+                padding: 26px 20px;
+            }
+
+            .cep-row,
+            .details {
+                grid-template-columns: 1fr;
+                display: grid;
+            }
+
+            #cep {
+                max-width: none;
+            }
+        }
+    </style>
+
+    <!-- Adicionando JQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <!-- Adicionando Javascript -->
+    <script>
+
+        $(document).ready(function () {
+
+            function limpa_formulário_cep() {
+                // Limpa valores do formulário de cep.
+                $("#rua").val("");
+                $("#bairro").val("");
+                $("#cidade").val("");
+                $("#uf").val("");
+                $("#ibge").val("");
+            }
+
+            //Quando o campo cep perde o foco.
+            $("#cep").blur(function () {
+
+                //Nova variável "cep" somente com dígitos.
+                var cep = $(this).val().replace(/\D/g, '');
+
+                //Verifica se campo cep possui valor informado.
+                if (cep != "") {
+
+                    //Expressão regular para validar o CEP.
+                    var validacep = /^[0-9]{8}$/;
+
+                    //Valida o formato do CEP.
+                    if (validacep.test(cep)) {
+
+                        //Preenche os campos com "..." enquanto consulta webservice.
+                        $("#rua").val("...");
+                        $("#bairro").val("...");
+                        $("#cidade").val("...");
+                        $("#uf").val("...");
+                        $("#ibge").val("...");
+
+                        //Consulta o webservice viacep.com.br/
+                        $.getJSON("https://viacep.com.br/ws/" + cep + "/json/?callback=?", function (dados) {
+
+                            if (!("erro" in dados)) {
+                                //Atualiza os campos com os valores da consulta.
+                                $("#rua").val(dados.logradouro);
+                                $("#bairro").val(dados.bairro);
+                                $("#cidade").val(dados.localidade);
+                                $("#uf").val(dados.uf);
+                                $("#ibge").val(dados.ibge);
+                            } //end if.
+                            else {
+                                //CEP pesquisado não foi encontrado.
+                                limpa_formulário_cep();
+                                alert("CEP não encontrado.");
+                            }
+                        });
+                    } //end if.
+                    else {
+                        //cep é inválido.
+                        limpa_formulário_cep();
+                        alert("Formato de CEP inválido.");
+                    }
+                } //end if.
+                else {
+                    //cep sem valor, limpa formulário.
+                    limpa_formulário_cep();
+                }
+            });
+
+            $("#consultar").click(function () {
+                $("#cep").trigger("blur");
+            });
+        });
+
+    </script>
+</head>
+
+<body>
+    <main>
+        <p class="eyebrow">Consulta de endereço</p>
+        <h1>Encontre um endereço</h1>
+        <p class="intro">Digite um CEP e consulte os dados diretamente pela API ViaCEP.</p>
+
+        <form method="get" action=".">
+            <div class="cep-row">
+                <label for="cep">CEP
+                    <input name="cep" type="text" id="cep" value="" maxlength="9" placeholder="00000-000" />
+                </label>
+                <button type="button" id="consultar">Consultar CEP</button>
+            </div>
+
+            <label for="rua">Rua
+                <input name="rua" type="text" id="rua" readonly />
+            </label>
+
+            <label for="bairro">Bairro
+                <input name="bairro" type="text" id="bairro" readonly />
+            </label>
+
+            <div class="details">
+                <label for="cidade">Cidade
+                    <input name="cidade" type="text" id="cidade" readonly />
+                </label>
+                <label for="uf">Estado
+                    <input name="uf" type="text" id="uf" readonly />
+                </label>
+            </div>
+
+            <label for="ibge">Código IBGE
+                <input name="ibge" type="text" id="ibge" readonly />
+            </label>
+        </form>
+    </main>
+</body>
+
+</html>
