@@ -4,7 +4,7 @@ Aplicação web simples para consultar endereços a partir de um CEP. A página 
 
 ## Demonstração
 
-![Aplicação NGINX ViaCEP](/viacep.png)
+![Aplicação NGINX ViaCEP](/viacep-.png)
 
 ## Pré-requisitos
 
